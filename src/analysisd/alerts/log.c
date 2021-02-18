@@ -184,7 +184,7 @@ void OS_Log(Eventinfo *lf)
     /* FIM events */
 
     if (strcmp(lf->location, SYSCHECK) == 0) {
-        fprintf(_aflog, "Attributes:\n");
+        fwrite("Attributes:\n", 13, 1, _aflog);
 
         if (lf->fields[FIM_SIZE].value && *lf->fields[FIM_SIZE].value != '\0') {
             fprintf(_aflog, " - Size: %s\n", lf->fields[FIM_SIZE].value);
@@ -197,7 +197,7 @@ void OS_Log(Eventinfo *lf)
         if (lf->fields[FIM_MTIME].value && *lf->fields[FIM_MTIME].value != '\0') {
             long aux_time = atol(lf->fields[FIM_MTIME].value);
             char buf_ptr[26];
-            printf(" - Date: %s", ctime_r(&aux_time, buf_ptr));
+            fprintf(_aflog, " - Date: %s", ctime_r(&aux_time, buf_ptr));
         }
 
         if (lf->fields[FIM_INODE].value && *lf->fields[FIM_INODE].value != '\0') {
@@ -267,7 +267,7 @@ void OS_Log(Eventinfo *lf)
             if (strcmp(lf->fields[FIM_TAG].value, "") != 0) {
                 char * tags;
                 os_strdup(lf->fields[FIM_TAG].value, tags);
-                fprintf(_aflog, "\nTags:\n");
+                fwrite("\nTags:\n", 8, 1, _aflog);
                 char * tag;
                 tag = strtok_r(tags, ",", &saveptr);
                 while (tag != NULL) {
@@ -297,7 +297,7 @@ void OS_Log(Eventinfo *lf)
         }
     }
 
-    fprintf(_aflog, "\n");
+    fputc('\n', _aflog);
 
     return;
 }
