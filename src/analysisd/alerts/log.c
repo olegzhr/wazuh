@@ -263,7 +263,7 @@ void OS_Log(Eventinfo *lf)
             fprintf(_aflog, "\nWhat changed:\n%s\n", lf->fields[FIM_DIFF].value);
         }
 
-        if (lf->fields[FIM_TAG].value && strcmp(lf->fields[FIM_TAG].value, "") != 0) {
+        if (lf->fields[FIM_TAG].value && *lf->fields[FIM_TAG].value != '\0') {
             char * tags;
             os_strdup(lf->fields[FIM_TAG].value, tags);
             fwrite("\nTags:\n", 8, 1, _aflog);
