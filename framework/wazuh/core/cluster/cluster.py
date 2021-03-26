@@ -207,8 +207,7 @@ def walk_dir(dirname, recursive, files, excluded_files, excluded_extensions, get
 
                 try:
                     if file_mod_time == previous_status[full_path]['mod_time']:
-                        logger.debug(f"{full_path} has not changed its mtime since the last integrity process. "
-                                     f"Omitting...")
+                        # The current file has not changed its mtime since the last integrity process
                         walk_files[full_path] = previous_status[full_path]
                         continue
                 except KeyError:
@@ -225,7 +224,6 @@ def walk_dir(dirname, recursive, files, excluded_files, excluded_extensions, get
 
                 if get_md5:
                     entry_metadata['md5'] = md5(os.path.join(common.ossec_path, full_path))
-                    logger.debug(f"MD5 checksum already calculated for {full_path}")
 
                 # Use the relative file path as a key to save its metadata dictionary.
                 walk_files[full_path] = entry_metadata
