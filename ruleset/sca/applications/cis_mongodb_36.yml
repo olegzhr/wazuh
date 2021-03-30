@@ -1,0 +1,116 @@
+# Security Configuration Assessment
+# CIS Checks for MongoDB
+# Copyright (C) 2015-2020, Wazuh Inc.
+#
+# This program is free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
+# License (version 2) as published by the FSF - Free Software
+# Foundation
+#
+# Based on:
+# Center for Internet Security Benchmark for MongoDB 3.6 - 31-12-2019
+
+policy:
+  id: "cis_mongodb"
+  file: "cis_mongodb_36.yml"
+  name: "CIS MongoDB 3.6 Benchmark"
+  description: "This document provides prescriptive guidance for establishing a secure configuration posture for MongoDB version 3.6. This guide was tested against MongoDB 3.6 running on Ubuntu Linux and Windows but applies to other distributions as well"
+  references:
+    - https://www.cisecurity.org/cis-benchmarks/
+
+requirements:
+  title: "Check that MongoDB is installed on the system."
+  description: "Requirements for running the SCA scan against the MongoDB policy."
+  condition: any
+  rules:
+    - "f:/etc/mongod.conf"                   # Linux: APT, YUM or Zypper
+
+variables:
+  $main-conf: /etc/mongod.conf
+
+checks:
+#1 Installation and Patching
+#1.1
+  - id: 15000
+    title: "Ensure the appropriate MongoDB software version/patches are installed"
+    description: "The MongoDB installation version, along with the patch level, should be the most recent that is compatible with the organization's operational needs."
+    rationale: "Using the most recent MongoDB software version along with all applicable patches, helps limit the possibilities for vulnerabilities in the software. The installation version and/or patches applied should be selected according to the needs of the organization. At a minimum, the software version should be supported."
+    remediation: "Upgrade to the latest version of the MongoDB software: 1. Backup the data set. 2. Download the binaries for the latest MongoDB revision from the MongoDB Download Page and store the binaries in a temporary location. The binaries download as compressed files that extract to the directory structure used by the MongoDB installation. 3. Shutdown the MongoDB instance. 4. Replace the existing MongoDB binaries with the downloaded binaries. 5. Restart the MongoDB instance."
+    compliance:
+      - cis: ["1.1"]
+      - cis_csc: ["4", "2.2"]
+    references:
+      - https://docs.mongodb.com/v3.6/tutorial/upgrade-revision/
+      - https://docs.mongodb.com/v3.6/release-notes/
+      - https://www.mongodb.com/download-center#community
+      - https://www.mongodb.com/support-policy
+    condition: none
+    rules:
+      - 'c:$enabled-modules -> r:dav_\.+module'
+
+#2 Authentication
+#2.1
+  - id: 15001
+    title: "Ensure Authentication is configured"
+    description: "This setting ensures that all clients, users, servers are required to authenticate before being granted access to the MongoDB database. Authentication is the process of verifying the identity of a client. When access control, i.e. authorization, is enabled, MongoDB requires all clients to authenticate themselves in order to determine their access. To authenticate as a user, you must provide a username, password, and the authentication database associated with that user."
+    rationale: "Failure to authenticate clients, users, servers can enable unauthorized access to the MongoDB database and can prevent tracing actions back to their sources."
+    remediation: "The authentication mechanism should be implemented before anyone accesses the MongoDB Server. To enable the authentication mechanism: Start the MongoDB instance without authentication. Create the system user administrator, ensuring that its password meets organizationally-defined password complexity requirements. Open mongod.conf and change for authorization value to enabled. Restart the MongoDB instance."
+    compliance:
+      - cis: ["1.2"]
+      - cis_csc: ["16", "16.3"]
+    references:
+      - https://docs.mongodb.com/v3.6/core/authentication/
+    condition: all
+    rules:
+      - 'c:cat /etc/mongod.conf | grep “authorization” -> r:enabled'
+#2.2
+  - id: 15002
+    title: "Ensure that MongoDB does not bypass authentication via the localhost exception"
+    description: "MongoDB should not be set to bypass authentication via the localhost exception. The localhost exception allows the user to enable authorization before creating the first user in the system. When active, the localhost exception allows all connections from the localhost interface to have full access to that instance. The exception applies only when there are no users created in the MongoDB instance. Note: This recommendation only applies when there are no users created in the MongoDB instance."
+    rationale: "Disabling this exception will prevent unauthorized local access to the MongoDB database. It will also ensure the traceability of each database activity to a specific user. Localhost Exception allows direct connect to Mongod’s without any UN/PW."
+    remediation: "To disable local authentication on the MongoDB database, type OS Console Command: mongod --setParameter enableLocalhostAuthBypass=0, or manually configure use the setParameter option in the mongo configuration file to set it to false ."
+    compliance:
+      - cis: ["2.2"]
+      - cis_csc: ["16", "16.3"]
+    references:
+      - https://docs.mongodb.com/v3.6/reference/parameters/#param.enableLocalhostAuthBypass
+    condition: all
+    rules:
+      - 'c:cat /etc/mongod.conf |grep "enableLocalhostAuthBypass" -> r:false'
+
+#2.3
+  - id: 15003
+    title: "Ensure authentication is enabled in the sharded cluster"
+    description: "Authentication is enabled in a sharded cluster when the certificate or key files are created and configured for all components. This ensures that every client that accesses the cluster must provide credentials, to include MongoDB instances that access each other within the cluster. With keyfile authentication, each mongod or mongos instance in the sharded cluster uses the contents of the keyfile as the shared password for authenticating other members in the deployment. Only mongod or mongos instances with the correct keyfile can join the sharded cluster. For Production Environment: x.509 certificate authentication with secure TSL/SSL connection must be used for authentication. For Development Purpose: Key file can be used as an authentication mechanism between the shared cluster. Keyfiles are bare-minimum forms of security and are best suited for testing or development environments."
+    rationale: "Enforcing a key or certificate on a sharded cluster prevents unauthorized access to the MongoDB database and provides traceability of database activities to a specific user or component. A MongoDB sharded cluster can enforce user authentication as well as internal authentication of its components to secure against unauthorized access."
+    remediation: "To authenticate to servers, clients can use x.509 certificates instead of usernames and passwords. MongoDB supports x.509 certificate authentication for use with a secure TLS/SSL connection. The x.509 client authentication allows clients to authenticate to servers with certificates rather than with a username and password."
+    compliance:
+      - cis: ["2.3"]
+      - cis_csc: ["16", "1.8"]
+    references:
+      - https://docs.mongodb.com/v3.6/tutorial/enforce-keyfile-access-control-in-existing-sharded-cluster-no-downtime/
+      - https://docs.mongodb.com/v3.6/tutorial/enforce-keyfile-access-control-in-existing-sharded-cluster/
+      - https://docs.mongodb.com/v3.6/tutorial/configure-x509-member-authentication/
+    condition: all
+    rules:
+      - WIP
+        #cat /etc/mongod.conf | grep “CAFile”
+        #cat /etc/mongod.conf | grep “clusterFile”
+        #cat /etc/mongod.conf | grep “clusterAuthMode”
+        #cat /etc/mongod.conf | grep “authenticationMechanisms:”
+
+#2 
+#2.x
+  - id: 1500x
+    title: ""
+    description: ""
+    rationale: ""
+    remediation: ""
+    compliance:
+      - cis: [""]
+      - cis_csc: []
+    references:
+      - 
+    condition: 
+    rules:
+      - 
