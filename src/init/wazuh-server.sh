@@ -27,7 +27,7 @@ fi
 
 AUTHOR="Wazuh Inc."
 USE_JSON=false
-DAEMONS="wazuh-clusterd wazuh-modulesd wazuh-monitord wazuh-logcollector wazuh-remoted wazuh-syscheckd wazuh-analysisd wazuh-maild wazuh-execd wazuh-db wazuh-authd wazuh-agentlessd wazuh-integratord wazuh-dbd wazuh-csyslogd wazuh-apid"
+DAEMONS="wazuh-clusterd wazuh-modulesd wazuh-monitord wazuh-logcollector wazuh-remoted wazuh-syscheckd wazuh-analysisd wazuh-maild wazuh-execd wazuh-db wazuh-authd wazuh-agentlessd wazuh-integratord wazuh-dbd wazuh-csyslogd wazuh-apid filebeat"
 OP_DAEMONS="wazuh-clusterd wazuh-maild wazuh-agentlessd wazuh-integratord wazuh-dbd wazuh-csyslogd"
 
 # Reverse order of daemons
@@ -330,11 +330,30 @@ start_service()
             failed=false
             rm -f ${DIR}/var/run/${i}.failed
             touch ${DIR}/var/run/${i}.start
-            if [ $USE_JSON = true ]; then
-                ${DIR}/bin/${i} ${DEBUG_CLI} > /dev/null 2>&1;
+
+            if [ "$i" == "filebeat" ]; then
+                FILEBEAT_CONFIG_OPTS='-c /usr/share/wazuh/filebeat/etc/filebeat.yml'
+                FILEBEAT_PATH_OPTS='--path.home /usr/share/wazuh/filebeat --path.config /usr/share/wazuh/filebeat/etc --path.data /var/lib/filebeat --path.logs /var/log/filebeat'
+
+                if [ $USE_JSON = true ]; then
+                    ${DIR}/filebeat/bin/${i} --environment $BEAT_CONFIG_OPTS $BEAT_PATH_OPTS > /dev/null 2>&1;
+                    filebeat_pid=$!
+
+                else
+                    ${DIR}/filebeat/bin/${i} --environment $BEAT_CONFIG_OPTS $BEAT_PATH_OPTS;
+                    filebeat_pid=$!
+                fi
+
+                # Create pid file
+                echo ${filebeat_pid} > /var/run/${i}.pid
             else
-                ${DIR}/bin/${i} ${DEBUG_CLI};
+                if [ $USE_JSON = true ]; then
+                    ${DIR}/bin/${i} ${DEBUG_CLI} > /dev/null 2>&1;
+                else
+                    ${DIR}/bin/${i} ${DEBUG_CLI};
+                fi
             fi
+
             if [ $? != 0 ]; then
                 failed=true
             else
