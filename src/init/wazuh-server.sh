@@ -336,11 +336,11 @@ start_service()
                 FILEBEAT_PATH_OPTS='--path.home /usr/share/wazuh/filebeat --path.config /usr/share/wazuh/filebeat/etc --path.data /var/lib/filebeat --path.logs /var/log/filebeat'
 
                 if [ $USE_JSON = true ]; then
-                    ${DIR}/filebeat/bin/${i} --environment $BEAT_CONFIG_OPTS $BEAT_PATH_OPTS > /dev/null 2>&1;
+                    ${DIR}/filebeat/bin/${i} --environment $FILEBEAT_CONFIG_OPTS $FILEBEAT_PATH_OPTS > /dev/null 2>&1;
                     filebeat_pid=$!
 
                 else
-                    ${DIR}/filebeat/bin/${i} --environment $BEAT_CONFIG_OPTS $BEAT_PATH_OPTS;
+                    ${DIR}/filebeat/bin/${i} --environment $FILEBEAT_CONFIG_OPTS $FILEBEAT_PATH_OPTS;
                     filebeat_pid=$!
                 fi
 
