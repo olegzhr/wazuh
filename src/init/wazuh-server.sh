@@ -6,6 +6,7 @@
 # Author: Daniel B. Cid <daniel.cid@gmail.com>
 
 # Getting where we are installed
+set -x
 LOCAL=`dirname $0`;
 cd ${LOCAL}
 PWD=`pwd`
@@ -27,7 +28,7 @@ fi
 
 AUTHOR="Wazuh Inc."
 USE_JSON=false
-DAEMONS="wazuh-clusterd wazuh-modulesd wazuh-monitord wazuh-logcollector wazuh-remoted wazuh-syscheckd wazuh-analysisd wazuh-maild wazuh-execd wazuh-db wazuh-authd wazuh-agentlessd wazuh-integratord wazuh-dbd wazuh-csyslogd wazuh-apid filebeat"
+DAEMONS="filebeat wazuh-clusterd wazuh-modulesd wazuh-monitord wazuh-logcollector wazuh-remoted wazuh-syscheckd wazuh-analysisd wazuh-maild wazuh-execd wazuh-db wazuh-authd wazuh-agentlessd wazuh-integratord wazuh-dbd wazuh-csyslogd wazuh-apid"
 OP_DAEMONS="wazuh-clusterd wazuh-maild wazuh-agentlessd wazuh-integratord wazuh-dbd wazuh-csyslogd"
 
 # Reverse order of daemons
@@ -236,7 +237,11 @@ testconfig()
 {
     # We first loop to check the config.
     for i in ${SDAEMONS}; do
-        ${DIR}/bin/${i} -t ${DEBUG_CLI};
+        if [ "$i" = "filebeat" ]; then
+            ${DIR}/filebeat/bin/${i} test config -c ${DIR}/filebeat/etc/${i}.yml > /dev/null 2>&1
+        else
+            ${DIR}/bin/${i} -t ${DEBUG_CLI};
+        fi
         if [ $? != 0 ]; then
             if [ $USE_JSON = true ]; then
                 echo -n '{"error":20,"message":"'${i}': Configuration error."}'
@@ -331,21 +336,21 @@ start_service()
             rm -f ${DIR}/var/run/${i}.failed
             touch ${DIR}/var/run/${i}.start
 
-            if [ "$i" == "filebeat" ]; then
+            if [ "$i" = "filebeat" ]; then
                 FILEBEAT_CONFIG_OPTS='-c /usr/share/wazuh/filebeat/etc/filebeat.yml'
                 FILEBEAT_PATH_OPTS='--path.home /usr/share/wazuh/filebeat --path.config /usr/share/wazuh/filebeat/etc --path.data /var/lib/filebeat --path.logs /var/log/filebeat'
 
                 if [ $USE_JSON = true ]; then
-                    ${DIR}/filebeat/bin/${i} --environment $FILEBEAT_CONFIG_OPTS $FILEBEAT_PATH_OPTS > /dev/null 2>&1;
+                    ${DIR}/filebeat/bin/${i} systemd ${FILEBEAT_CONFIG_OPTS} ${FILEBEAT_PATH_OPTS} & > /dev/null 2>&1;
                     filebeat_pid=$!
 
                 else
-                    ${DIR}/filebeat/bin/${i} --environment $FILEBEAT_CONFIG_OPTS $FILEBEAT_PATH_OPTS;
+                    ${DIR}/filebeat/bin/${i} systemd ${FILEBEAT_CONFIG_OPTS} ${FILEBEAT_PATH_OPTS} & 
                     filebeat_pid=$!
                 fi
 
                 # Create pid file
-                echo ${filebeat_pid} > /var/run/${i}.pid
+                echo ${filebeat_pid} > ${DIR}/var/run/${i}.pid
             else
                 if [ $USE_JSON = true ]; then
                     ${DIR}/bin/${i} ${DEBUG_CLI} > /dev/null 2>&1;
