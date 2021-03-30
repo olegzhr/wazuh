@@ -5,7 +5,7 @@
 # Syntax: make [ all | build | install | examples | clean ]
 
 OSSEC_GROUP       = ossec
-PREFIX            = /var/ossec
+PREFIX           ?= /var/ossec
 USE_FRAMEWORK_LIB = no
 
 CC           = gcc
