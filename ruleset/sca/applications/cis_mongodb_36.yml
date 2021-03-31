@@ -1,6 +1,6 @@
 # Security Configuration Assessment
 # CIS Checks for MongoDB
-# Copyright (C) 2015-2020, Wazuh Inc.
+# Copyright (C) 2015-2021, Wazuh Inc.
 #
 # This program is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -190,7 +190,7 @@ checks:
 
 #5 Auditing
 #5.1
-  - id: 23512
+  - id: 23513
     title: "Ensure that system activity is audited"
     description: "Track access and changes to database configurations and data. MongoDB Enterprise includes a system auditing facility that can record system events (e.g. user operations, connection events) on a MongoDB instance. These audit records permit forensic analysis and allow administrators to verify proper controls."
     rationale: "System level logs can be handy while troubleshooting an operational problem or handling a security incident."
@@ -205,7 +205,7 @@ checks:
       - 'f:$main-conf -> auditLog'
 
 #5.2
-  - id: 23513
+  - id: 23514
     title: "Ensure that system activity is audited"
     description: "MongoDB Enterprise supports auditing of various operations. When enabled, the audit facility, by default, records all auditable operations as detailed in Audit Event Actions, Details, and Results. To specify which events to record, the audit feature includes the --auditFilter option. This check is only for Enterprise editions."
     rationale: "All operations carried out on the database are logged. This helps in backtracking and tracing any incident that occurs."
@@ -221,7 +221,7 @@ checks:
       - 'f:$main-conf -> filter'
 
 #5.3
-  - id: 23514
+  - id: 23515
     title: "Ensure that audit filters are configured properly"
     description: "The SystemLog.quiet option stops logging of information such as:connection events, authentication events, replication sync activitie, evidence of some potentially impactful commands being run (eg: drop , dropIndexes , validate ). This information should be logged whenever possible. This check is only for Enterprise editions."
     rationale: "The use of SystemLog.quiet makes troubleshooting problems and investigating possible security incidents much more difficult."
@@ -236,7 +236,7 @@ checks:
       - 'f:$main-conf -> quiet: false'
 
 #5.4
-  - id: 23515
+  - id: 23516
     title: "Ensure that new entries are appended to the end of the log file"
     description: "By default, new log entries will overwrite old entries after a restart of the mongod or mongos service. Enabling the systemLog.logAppend setting causes new entries to be appended to the end of the log file rather than overwriting the existing content of the log when the mongod or mongos instance restarts."
     rationale: "Allowing old entries to be overwritten by new entries instead of appending new entries to the end of the log may destroy old log data that is needed for a variety of purposes."
@@ -252,7 +252,7 @@ checks:
 
 #6 Operating System Hardening
 #6.1
-  - id: 23516
+  - id: 23517
     title: "Ensure that MongoDB uses a non-default port"
     description: "Changing the default port used by MongoDB makes it harder for attackers to find the database and target it."
     rationale: "Standard ports are used in automated attacks and by attackers to verify which applications are running on a server."
@@ -267,11 +267,11 @@ checks:
       - 'not f:$main-conf -> port: 27017'
 
 #6.2 - Has to be done manually as it is specific to the MongoDB deployment
-#  - id: 23517
+#  - id: 23518
 #    title: "Ensure that operating system resource limits are set for MongoDB"
 
 #6.3
-  - id: 23518
+  - id: 23519
     title: "Ensure that server-side scripting is disabled if not needed"
     description: "MongoDB supports the execution of JavaScript code for certain server-side operations: mapReduce , group , and $where . If you do not use these operations, server-side scripting should be disabled."
     rationale: "If server-side scripting is not needed and is not disabled, this introduces unnecessary risk which may allow an attacker to take advantage of insecure coding."
@@ -287,9 +287,9 @@ checks:
 
 #7 File Permissions
 #7.1 - Has to be done manually as it is specific to the MongoDB deployment
-#  - id: 23519
+#  - id: 23520
 #    title: "Ensure authentication file permissions are set correctly"
 
 #7.2 - Has to be done manually as it is specific to the MongoDB deployment
-#  - id: 23520
+#  - id: 23521
 #    title: "Ensure that database file permissions are set correctly"
