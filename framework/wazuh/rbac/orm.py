@@ -2640,11 +2640,6 @@ class DatabaseManager:
         """Create database structure using the metadata."""
         _Base.metadata.create_all(self.engines[database])
 
-    @staticmethod
-    def get_api_revision():
-        """Get the current API revision from the Spec.yaml."""
-        return common.load_spec()['info']['x-revision']
-
     def get_database_version(self, database):
         """Get the current revision of a given database."""
         return str(self.sessions[database].execute('pragma user_version').first()[0])
@@ -2896,7 +2891,7 @@ def check_database_integrity():
             set_permission(DATABASE_FULL_PATH)
             db_manager.connect(DATABASE_FULL_PATH)
             current_version = db_manager.get_database_version(DATABASE_FULL_PATH)
-            expected_version = db_manager.get_api_revision()
+            expected_version = common.get_wazuh_revision()
 
             # Check if an upgrade is required
             if int(current_version) < int(expected_version):
@@ -2920,7 +2915,7 @@ def check_database_integrity():
                                         resource_type=ResourceType.USER)
 
                 # Apply changes and replace database
-                db_manager.set_database_version(_tmp_db_file, db_manager.get_api_revision())
+                db_manager.set_database_version(_tmp_db_file, common.get_wazuh_revision())
                 db_manager.close_sessions()
                 safe_move(_tmp_db_file, DATABASE_FULL_PATH,
                           ownership=(common.ossec_uid(), common.ossec_gid()),
@@ -2934,7 +2929,7 @@ def check_database_integrity():
             db_manager.create_database(DATABASE_FULL_PATH)
             set_permission(DATABASE_FULL_PATH)
             db_manager.insert_data_from_yaml(DATABASE_FULL_PATH)
-            db_manager.set_database_version(DATABASE_FULL_PATH, db_manager.get_api_revision())
+            db_manager.set_database_version(DATABASE_FULL_PATH, common.get_wazuh_revision())
             db_manager.close_sessions()
             logger.info(f'{DATABASE_FULL_PATH} database created successfully')
 
