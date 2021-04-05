@@ -27,7 +27,7 @@ requirements:
     - "f:/etc/mongod.conf"
 
 variables:
-  $main-conf: /etc/mongodb.conf
+  $main-conf: /etc/mongod.conf
 
 checks:
 #1 Installation and Patching
