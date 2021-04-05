@@ -266,7 +266,7 @@ void OS_Log(Eventinfo *lf)
         if (lf->fields[FIM_TAG].value && *lf->fields[FIM_TAG].value != '\0') {
             char * tags;
             os_strdup(lf->fields[FIM_TAG].value, tags);
-            fwrite("\nTags:\n", 8, 1, _aflog);
+            fwrite("\nTags:\n", sizeof(char), 7, _aflog);
             char * tag;
             tag = strtok_r(tags, ",", &saveptr);
             while (tag != NULL) {
