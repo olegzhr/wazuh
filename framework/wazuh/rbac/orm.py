@@ -2933,6 +2933,10 @@ def check_database_integrity():
             db_manager.close_sessions()
             logger.info(f'{DATABASE_FULL_PATH} database created successfully')
 
+    except ValueError:
+        logger.error('Error retrieving the current Wazuh revision. Aborting database integrity check.')
+        db_manager.close_sessions()
+
     except Exception as e:
         logger.error('Error during the database migration. Restoring the previous database file.')
         logger.error(f'Error details: {str(e)}')
