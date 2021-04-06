@@ -6,7 +6,6 @@
 # Author: Daniel B. Cid <daniel.cid@gmail.com>
 
 # Getting where we are installed
-set -x
 LOCAL=`dirname $0`;
 cd ${LOCAL}
 PWD=`pwd`
