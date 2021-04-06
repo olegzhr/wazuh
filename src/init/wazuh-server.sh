@@ -337,8 +337,8 @@ start_service()
             touch ${DIR}/var/run/${i}.start
 
             if [ "$i" = "filebeat" ]; then
-                FILEBEAT_CONFIG_OPTS='-c /usr/share/wazuh/filebeat/etc/filebeat.yml'
-                FILEBEAT_PATH_OPTS='--path.home /usr/share/wazuh/filebeat --path.config /usr/share/wazuh/filebeat/etc --path.data /var/lib/filebeat --path.logs /var/log/filebeat'
+                FILEBEAT_CONFIG_OPTS="-c ${DIR}/filebeat/etc/filebeat.yml"
+                FILEBEAT_PATH_OPTS="--path.home ${DIR}/filebeat --path.config ${DIR}/filebeat/etc --path.data /var/lib/filebeat --path.logs /var/log/filebeat"
 
                 if [ $USE_JSON = true ]; then
                     ${DIR}/filebeat/bin/${i} systemd ${FILEBEAT_CONFIG_OPTS} ${FILEBEAT_PATH_OPTS} & > /dev/null 2>&1;
